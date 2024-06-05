@@ -1,0 +1,5 @@
+
+template-file-path: ./deployment.yaml
+tags:
+  Name: gitsync
+  Project: Cloudformation AWS POC
