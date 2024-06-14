@@ -1,175 +1,98 @@
-## **Azure Traffic Manager Profile Module**
+# **Virtual Machine Module**
 
-Terraform module to create an Azure Traffic Manager Profile.
+Terraform module to create a virtual machine in Azure.
 
 ## **Description**
 
-This module is used to create an Azure Traffic Manager Profile. It requires several attributes in order to be created on Azure, including `name`, `resource_group_name`, `profile_status`, `traffic_view_enabled`, `traffic_routing_method`, `max_return`, `dns_config`, `monitor_config`, and `tags`.
+This module is used to create a virtual machine in Azure. It requires several attributes in order to be created on Azure, including `generate_admin_ssh_key`, `rsa_algorithm`, `rsa_bits`, `os_flavor`, `virtual_machine_name`, `virtual_machine_size`, `admin_username`, `admin_password`, `disable_password_authentication`, `os_disk_storage_account_type`, `os_disk_caching`, `disk_encryption_set_id`, `security_encryption_type`, `secure_vm_disk_encryption_set_id`, `disk_size_gb`, `enable_os_disk_write_accelerator`, `custom_data`, `availability_set_id`, `enable_vm_availability_set`, `enable_encryption_at_host`, `dedicated_host_id`, `vm_availability_zone`, `tags`, `managed_identity_type`, `managed_identity_ids`, `enable_boot_diagnostics`, `storage_account_name`, `winrm_protocol`, `key_vault_certificate_secret_url`, `additional_unattend_content`, `additional_unattend_content_setting`, `enable_ultra_ssd_data_disk_storage_support`, `license_type`, `patch_mode`, `vm_time_zone`, `storage_account_uri`, `source_image_reference`, `enable_proximity_placement_group`, `os_disk_name`, `source_image_id`, `enable_automatic_updates`, `proximity_placement_group_id`, `resource_group_name`, `location`, `key_vault_id`, `network_interface_ids`, `admin_ssh_key_data`, `create_VM_extention`, `VMExtention_name`, `publisher`, `type`, `type_handler_version`, `auto_upgrade_minor_version`, `certificates`, `settings`, and `protected_settings`.
 
 ## **Variable Definitions**
 
 | Name | Description | Type | Required | Default | Example |
 |------|-------------|------|----------|---------|:-------:|
-| <a name="input_name"></a>[name](#input\_name) | Name of the Traffic Manager profile. | `string` | Yes | `""` | `"my-traffic-manager"` |
-| <a name="input_resource_group_name"></a>[resource_group_name](#input\_resource_group_name) | Name of the resource group. | `string` | Yes | `""` | `"my-resource-group"` |
-| <a name="input_profile_status"></a>[profile_status](#input\_profile_status) | Status of the profile. | `string` | No | `"Enabled"` | `"Disabled"` |
-| <a name="input_traffic_view_enabled"></a>[traffic_view_enabled](#input\_traffic_view_enabled) | Traffic view is enabled for the Traffic Manager profile. | `string` | No | `null` | `"Enabled"` |
-| <a name="input_traffic_routing_method"></a>[traffic_routing_method](#input\_traffic_routing_method) | Specific the algorithm used for the route traffic. | `string` | Yes | `""` | `"Performance"` |
-| <a name="input_max_return"></a>[max_return](#input\_max_return) | The amount of endpoint return for DNS queries to profiler. | `number` | No | `null` | `5` |
-| <a name="input_dns_config"></a>[dns_config](#input\_dns_config) | DNS configuration of the Profile. | `object({ relative_name = string, ttl = string })` | Yes | `{}` | `{ relative_name = "example", ttl = "3600" }` |
-| <a name="input_monitor_config"></a>[monitor_config](#input\_monitor_config) | Monitoring configuration for the profile. | `object({ protocol = string, port = number, path = optional(string), expected_status_code_ranges = optional(list(string)), interval_in_seconds = optional(number), timeout_in_seconds = optional(number), tolerated_number_of_failures = optional(number), custom_header = optional(list(object({ name = string, value = string }))) })` | No | `null` | See example below |
-| <a name="input_tags"></a>[tags](#input\_tags) | A map of tags for the Traffic Manager. | `map(string)` | No | `{}` | `{ environment = "dev" }` |
-
-### **Azure Endpoint Variables**
-
-| Name | Description | Type | Required | Default | Example |
-|------|-------------|------|----------|---------|:-------:|
-| <a name="input_create_azure_endpoint"></a>[create_azure_endpoint](#input\_create_azure_endpoint) | Flag to create Azure Endpoint. | `bool` | No | `false` | `true` |
-| <a name="input_azure_endpoint_name"></a>[azure_endpoint_name](#input\_azure_endpoint_name) | Name of the Azure endpoint. | `string` | No | `null` | `"my-azure-endpoint"` |
-| <a name="input_weight"></a>[weight](#input\_weight) | How much traffic should be distributed to this endpoint. | `number` | No | `null` | `50` |
-| <a name="input_target_resource_id"></a>[target_resource_id](#input\_target_resource_id) | The id of the Resource which should be used as a target. | `string` | No | `null` | `"resource-id"` |
-| <a name="input_endpoint_enabled"></a>[endpoint_enabled](#input\_endpoint_enabled) | Is endpoint enabled. | `bool` | No | `true` | `false` |
-| <a name="input_geo_mappings"></a>[geo_mappings](#input\_geo_mappings) | The List of Geographical Regions used to distribute traffic. | `list(string)` | No | `null` | `["US", "EU"]` |
-| <a name="input_priority"></a>[priority](#input\_priority) | Priority of the endpoint. | `number` | No | `null` | `1` |
-| <a name="input_custom_header"></a>[custom_header](#input\_custom_header) | Custom header block. | `list(object({ name = string, value = string }))` | No | `null` | See example below |
-| <a name="input_subnet"></a>[subnet](#input\_subnet) | Subnet block. | `list(object({ first = string, last = optional(string), scope = optional(string) }))` | No | `null` | See example below |
-
-### **External Endpoint Variables**
-
-| Name | Description | Type | Required | Default | Example |
-|------|-------------|------|----------|---------|:-------:|
-| <a name="input_create_external_endpoint"></a>[create_external_endpoint](#input\_create_external_endpoint) | Flag to create External Endpoint. | `bool` | No | `false` | `true` |
-| <a name="input_external_endpoint_name"></a>[external_endpoint_name](#input\_external_endpoint_name) | Name of the external endpoint. | `string` | No | `null` | `"my-external-endpoint"` |
-| <a name="input_external_weight"></a>[external_weight](#input\_external_weight) | How much traffic should be distributed to this endpoint. | `number` | No | `null` | `50` |
-| <a name="input_external_target"></a>[external_target](#input\_external_target) | The external target. | `string` | No | `null` | `"https://example.com"` |
-| <a name="input_external_endpoint_location"></a>[external_endpoint_location](#input\_external_endpoint_location) | External endpoint location. | `string` | No | `null` | `"West US"` |
-| <a name="input_external_endpoint_enabled"></a>[external_endpoint_enabled](#input\_external_endpoint_enabled) | Is endpoint enabled. | `bool` | No | `true` | `false` |
-| <a name="input_external_geo_mappings"></a>[external_geo_mappings](#input\_external_geo_mappings) | The List of Geographical Regions used to distribute traffic. | `list(string)` | No | `null` | `["US", "EU"]` |
-| <a name="input_external_priority"></a>[external_priority](#input\_external_priority) | Priority of the endpoint. | `number` | No | `null` | `1` |
-| <a name="input_external_custom_header"></a>[external_custom_header](#input\_external_custom_header) | Custom header block. | `list(object({ name = string, value = string }))` | No | `null` | See example below |
-| <a name="input_external_subnet"></a>[external_subnet](#input\_external_subnet) | Subnet block. | `list(object({ first = string, last = optional(string), scope = optional(string) }))` | No | `null` | See example below |
-
-### **Nested Endpoint Variables**
-
-| Name | Description | Type | Required | Default | Example |
-|------|-------------|------|----------|---------|:-------:|
-| <a name="input_create_nested_external_endpoint"></a>[create_nested_external_endpoint](#input\_create_nested_external_endpoint) | Flag to create Nested Endpoint. | `bool` | No | `false` | `true` |
-| <a name="input_nested_endpoint_name"></a>[nested_endpoint_name](#input\_nested_endpoint_name) | Name of the nested endpoint. | `string` | No | `null` | `"my-nested-endpoint"` |
-| <a name="input_nested_weight"></a>[nested_weight](#input\_nested_weight) | How much traffic should be distributed to this endpoint. | `number` | No | `null` | `50` |
-| <a name="input_nested_target_resource_id"></a>[nested_target_resource_id](#input\_nested_target_resource_id) | The target resource id. | `string` | No | `null` | `"resource-id"` |
-| <a name="input_nested_endpoint_location"></a>[nested_endpoint_location](#input\_nested_endpoint_location) | Nested endpoint location. | `string` | No | `null` | `"East US"` |
-| <a name="input_minimum_child_endpoints"></a>[minimum_child_endpoints](#input\_minimum_child_endpoints) | Minimum number of child endpoints. | `number` | No | `null` | `2` |
-| <a name="input_minimum_required_child_endpoints_ipv4"></a>[minimum_required_child_endpoints_ipv4](#input\_minimum_required_child_endpoints_ipv4) | Minimum number of IPv4 endpoints. | `number` | No | `null` | `2` |
-| <a name="input_minimum_required_child_endpoints_ipv6"></a>[minimum_required_child_endpoints_ipv6](#input\_minimum_required_child_endpoints_ipv6) | Minimum number of IPv6 endpoints. | `number` | No | `null` | `1` |
-| <a name="input_nested_endpoint_enabled"></a>[nested_endpoint_enabled](#input\_nested_endpoint_enabled) | Is endpoint enabled. | `bool` | No | `true` | `false` |
-| <a name="input_nested_geo_mappings"></a>[nested_geo_mappings](#input\_nested_geo_mappings) | The List of Geographical Regions used to distribute traffic. | `list(string)` | No | `null` | `["US", "EU"]` |
-| <a name="input_nested_priority"></a>[nested_priority](#input\_nested_priority) | Priority of the endpoint. | `number` | No | `null` | `1` |
-| <a name="input_nested_custom_header"></a>[nested_custom_header](#input\_nested_custom_header) | Custom header block. | `list(object({ name = string, value = string }))` | No | `null` | See example below |
-| <a name="input_nested_subnet"></a>[nested_subnet](#input\_nested_subnet) | Subnet block. | `list(object({ first = string, last = optional(string), scope = optional(string) }))` | No | `null` | See example below |
+| <a name="input_generate_admin_ssh_key"></a>[generate_admin_ssh_key](#input\_generate_admin_ssh_key) | Whether to generate an admin SSH key. | `bool` | No | `false` | `true` |
+| <a name="input_rsa_algorithm"></a>[rsa_algorithm](#input\_rsa_algorithm) | The RSA algorithm to use for generating the private key. | `string` | No | `"RSA"` | `"RSA"` |
+| <a name="input_rsa_bits"></a>[rsa_bits](#input\_rsa_bits) | The number of bits for the RSA private key. | `number` | No | `4096` | `2048` |
+| <a name="input_os_flavor"></a>[os_flavor](#input\_os_flavor) | Operating system flavor (e.g., 'linux' or 'windows'). | `string` | Yes | `""` | `"linux"` |
+| <a name="input_virtual_machine_name"></a>[virtual_machine_name](#input\_virtual_machine_name) | Name of the virtual machine. | `string` | Yes | `""` | `"my-vm"` |
+| <a name="input_virtual_machine_size"></a>[virtual_machine_size](#input\_virtual_machine_size) | Size of the virtual machine. | `string` | Yes | `""` | `"Standard_DS1_v2"` |
+| <a name="input_admin_username"></a>[admin_username](#input\_admin_username) | Admin username for the virtual machine. | `string` | Yes | `""` | `"admin"` |
+| <a name="input_admin_password"></a>[admin_password](#input\_admin_password) | Admin password for the virtual machine. | `string` | Yes | `""` | `"Password123!"` |
+| <a name="input_disable_password_authentication"></a>[disable_password_authentication](#input\_disable_password_authentication) | Whether to disable password authentication. | `bool` | No | `false` | `true` |
+| <a name="input_os_disk_storage_account_type"></a>[os_disk_storage_account_type](#input\_os_disk_storage_account_type) | Storage account type for the OS disk. | `string` | No | `""` | `"Standard_LRS"` |
+| <a name="input_os_disk_caching"></a>[os_disk_caching](#input\_os_disk_caching) | Caching type for the OS disk. | `string` | No | `""` | `"ReadWrite"` |
+| <a name="input_disk_encryption_set_id"></a>[disk_encryption_set_id](#input\_disk_encryption_set_id) | ID of the disk encryption set. | `string` | No | `null` | `"disk-encryption-set-id"` |
+| <a name="input_security_encryption_type"></a>[security_encryption_type](#input\_security_encryption_type) | Security encryption type for the OS disk. | `string` | No | `null` | `"EncryptionAtRestWithCustomerKey"` |
+| <a name="input_secure_vm_disk_encryption_set_id"></a>[secure_vm_disk_encryption_set_id](#input\_secure_vm_disk_encryption_set_id) | ID of the secure VM disk encryption set. | `string` | No | `null` | `"secure-vm-disk-encryption-set-id"` |
+| <a name="input_disk_size_gb"></a>[disk_size_gb](#input\_disk_size_gb) | Size of the OS disk in GB. | `number` | No | `null` | `128` |
+| <a name="input_enable_os_disk_write_accelerator"></a>[enable_os_disk_write_accelerator](#input\_enable_os_disk_write_accelerator) | Whether to enable OS disk write accelerator. | `bool` | No | `false` | `true` |
+| <a name="input_custom_data"></a>[custom_data](#input\_custom_data) | Custom data to be used when provisioning the virtual machine. | `string` | No | `null` | `"echo 'Hello, World!' > /tmp/hello.txt"` |
+| <a name="input_availability_set_id"></a>[availability_set_id](#input\_availability_set_id) | ID of the availability set for the virtual machine. | `string` | No | `null` | `"availability-set-id"` |
+| <a name="input_enable_vm_availability_set"></a>[enable_vm_availability_set](#input\_enable_vm_availability_set) | Whether to enable the availability set for the virtual machine. | `bool` | No | `false` | `true` |
+| <a name="input_enable_encryption_at_host"></a>[enable_encryption_at_host](#input\_enable_encryption_at_host) | Whether to enable encryption at host for the virtual machine. | `bool` | No | `false` | `true` |
+| <a name="input_dedicated_host_id"></a>[dedicated_host_id](#input\_dedicated_host_id) | ID of the dedicated host for the virtual machine. | `string` | No | `null` | `"dedicated-host-id"` |
+| <a name="input_vm_availability_zone"></a>[vm_availability_zone](#input\_vm_availability_zone) | Availability zone for the virtual machine. | `string` | No | `null` | `"1"` |
+| <a name="input_tags"></a>[tags](#input\_tags) | A map of tags to apply to the virtual machine. | `map(string)` | No | `{}` | `{"environment": "production", "app": "web"}` |
+| <a name="input_managed_identity_type"></a>[managed_identity_type](#input\_managed_identity_type) | Type of managed identity for the virtual machine. | `string` | No | `null` | `"SystemAssigned"` |
+| <a name="input_managed_identity_ids"></a>[managed_identity_ids](#input\_managed_identity_ids) | List of managed identity IDs for the virtual machine. | `list(string)` | No | `[]` | `["managed-identity-id-1", "managed-identity-id-2"]` |
+| <a name="input_enable_boot_diagnostics"></a>[enable_boot_diagnostics](#input\_enable_boot_diagnostics) | Whether to enable boot diagnostics for the virtual machine. | `bool` | No | `false` | `true` |
+| <a name="input_storage_account_name"></a>[storage_account_name](#input\_storage_account_name) | Name of the storage account for boot diagnostics. | `string` | No | `null` | `"bootdiagnosticsstorage"` |
+| <a name="input_winrm_protocol"></a>[winrm_protocol](#input\_winrm_protocol) | WinRM protocol (e.g., 'Http' or 'Https'). | `string` | No | `null` | `"Https"` |
+| <a name="input_key_vault_certificate_secret_url"></a>[key_vault_certificate_secret_url](#input\_key_vault_certificate_secret_url) | URL of the Key Vault certificate secret for WinRM over HTTPS. | `string` | No | `null` | `"https://mykeyvault.vault.azure.net/secrets/mycertificate"` |
+| <a name="input_additional_unattend_content"></a>[additional_unattend_content](#input\_additional_unattend_content) | Additional unattend content for Windows virtual machines. | `string` | No | `null` | `"additional content"` |
+| <a name="input_additional_unattend_content_setting"></a>[additional_unattend_content_setting](#input\_additional_unattend_content_setting) | Setting for additional unattend content for Windows virtual machines. | `string` | No | `null` | `"MyUnattendContent"` |
+| <a name="input_enable_ultra_ssd_data_disk_storage_support"></a>[enable_ultra_ssd_data_disk_storage_support](#input\_enable_ultra_ssd_data_disk_storage_support) | Whether to enable Ultra SSD data disk storage support. | `bool` | No | `false` | `true` |
+| <a name="input_license_type"></a>[license_type](#input\_license_type) | License type for Windows virtual machines. | `string` | No | `null` | `"Windows_Server"` |
+| <a name="input_patch_mode"></a>[patch_mode](#input\_patch_mode) | Patch mode for Windows virtual machines. | `string` | No | `null` | `"AutomaticByOS"` |
+| <a name="input_vm_time_zone"></a>[vm_time_zone](#input\_vm_time_zone) | Time zone for Windows virtual machines. | `string` | No | `null` | `"Eastern Standard Time"` |
+| <a name="input_storage_account_uri"></a>[storage_account_uri](#input\_storage_account_uri) | URI of the storage account for boot diagnostics. | `string` | No | `null` | `"https://mystorageaccount.blob.core.windows.net/"` |
+| <a name="input_source_image_reference"></a>[source_image_reference](#input\_source_image_reference) | Source image reference distribution properties. | `object({ publisher = string offer = string sku = string version = string })` | No | `null` | `{ publisher = "Canonical", offer = "UbuntuServer", sku = "18.04-LTS", version = "latest" }` |
+| <a name="input_enable_proximity_placement_group"></a>[enable_proximity_placement_group](#input\_enable_proximity_placement_group) | Whether to enable proximity placement group for the virtual machine. | `bool` | No | `false` | `true` |
+| <a name="input_os_disk_name"></a>[os_disk_name](#input\_os_disk_name) | Name of the OS disk. | `string` | No | `"osdisk"` | `"osdisk"` |
+| <a name="input_source_image_id"></a>[source_image_id](#input\_source_image_id) | ID of the source image to use for virtual machine creation. | `string` | No | `null` | `"source-image-id"` |
+| <a name="input_enable_automatic_updates"></a>[enable_automatic_updates](#input\_enable_automatic_updates) | Whether to enable automatic OS updates for Windows virtual machines. | `bool` | No | `true` | `true` |
+| <a name="input_proximity_placement_group_id"></a>[proximity_placement_group_id](#input\_proximity_placement_group_id) | ID of the proximity placement group if `enable_proximity_placement_group` is true, otherwise an empty string. | `string` | No | `null` | `"proximity-placement-group-id"` |
+| <a name="input_resource_group_name"></a>[resource_group_name](#input\_resource_group_name) | The name of the Azure resource group. | `string` | Yes | `""` | `"my-resource-group"` |
+| <a name="input_location"></a>[location](#input\_location) | The Azure region where the resource group is located. | `string` | Yes | `""` | `"eastus"` |
+| <a name="input_key_vault_id"></a>[key_vault_id](#input\_key_vault_id) | Key vault key id. | `string` | No | `null` | `"key-vault-id"` |
+| <a name="input_network_interface_ids"></a>[network_interface_ids](#input\_network_interface_ids) | A list of network interface IDs for the virtual machine. | `list(string)` | No | `[]` | `["nic-id-1", "nic-id-2"]` |
+| <a name="input_admin_ssh_key_data"></a>[admin_ssh_key_data](#input\_admin_ssh_key_data) | SSH key data for admin user. | `string` | No | `null` | `"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQD..."` |
+| <a name="input_create_VM_extention"></a>[create_VM_extention](#input\_create_VM_extention) | Set to true to create the Virtual machine Extention. | `bool` | No | `false` | `true` |
+| <a name="input_VMExtention_name"></a>[VMExtention_name](#input\_VMExtention_name) | The name of the VM extension. | `string` | No | `""` | `"vm-extension-name"` |
+| <a name="input_publisher"></a>[publisher](#input\_publisher) | The publisher of the VM extension. | `string` | No | `""` | `"Microsoft.EnterpriseCloud.Monitoring"` |
+| <a name="input_type"></a>[type](#input\_type) | The type of the VM extension. | `string` | No | `""` | `"vm-extension-type"` |
+| <a name="input_type_handler_version"></a>[type_handler_version](#input\_type_handler_version) | The version of the VM extension type handler. | `string` | No | `null` | `"1.0"` |
+| <a name="input_auto_upgrade_minor_version"></a>[auto_upgrade_minor_version](#input\_auto_upgrade_minor_version) | Set to true to automatically upgrade the minor version of the extension. | `bool` | No | `true` | `false` |
+| <a name="input_certificates"></a>[certificates](#input\_certificates) | Certificates for the extension. | `object({ store = optional(string) url = string key_vault_id = string })` | No | `null` | `{ store = "My" url = "https://mykeyvault.vault.azure.net/secrets/mycertificate" key_vault_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/my-resource-group/providers/Microsoft.KeyVault/vaults/my-keyvault" }` |
+| <a name="input_settings"></a>[settings](#input\_settings) | The settings passed to the extension. | `string` | No | `null` | `"{\"setting1\": \"value1\", \"setting2\": \"value2\"}"` |
+| <a name="input_protected_settings"></a>[protected_settings](#input\_protected_settings) | The protected_settings passed to the extension. | `string` | No | `null` | `"{\"protectedsetting1\": \"value1\", \"protectedsetting2\": \"value2\"}"` |
 
 ## **Example Usage**
 
 ```hcl
-module "traffic_manager" {
-  source                     = "tfe.axisb.com/ax-tfe/traffic-manager/azurerm"
-  version                    = "X.X.X"
-  name                       = "my-traffic-manager"
-  resource_group_name        = "my-resource-group"
-  profile_status             = "Enabled"
-  traffic_view_enabled       = "Enabled"
-  traffic_routing_method     = "Performance"
-  max_return                 = 5
-  dns_config = {
-    relative_name = "example"
-    ttl           = "3600"
-  }
-  monitor_config = {
-    protocol                     = "HTTP"
-    port                         = 80
-    path                         = "/"
-    expected_status_code_ranges  = ["200-299"]
-    interval_in_seconds          = 30
-    timeout_in_seconds           = 10
-    tolerated_number_of_failures = 3
-    custom_header                = [
-      {
-        name  = "X-Custom-Header"
-        value = "Value"
-      }
-    ]
-  }
-  tags = {
-    environment = "dev"
-  }
-
-  # Azure Endpoint
-  create_azure_endpoint   = true
-  azure_endpoint_name     = "my-azure-endpoint"
-  weight                  = 50
-  target_resource_id      = "resource-id"
-  endpoint_enabled        = false
-  geo_mappings            = ["US", "EU"]
-  priority                = 1
-  custom_header           = [
-    {
-      name  = "X-Custom-Header"
-      value = "Value"
-    }
-  ]
-  subnet = [
-    {
-      first = "192.168.1.0"
-      last  = "192.168.1.255"
-      scope = "Public"
-    }
-  ]
-
-  # External Endpoint
-  create_external_endpoint    = true
-  external_endpoint_name      = "my-external-endpoint"
-  external_weight             = 50
-  external_target             = "https://example.com"
-  external_endpoint_location  = "West US"
-  external_endpoint_enabled   = false
-  external_geo_mappings       = ["US", "EU"]
-  external_priority           = 1
-  external_custom_header      = [
-    {
-      name  = "X-Custom-Header"
-      value = "Value"
-    }
-  ]
-  external_subnet = [
-    {
-      first = "192.168.2.0"
-      last  = "192.168.2.255"
-      scope = "Public"
-    }
-  ]
-
-  # Nested Endpoint
-  create_nested_external_endpoint     = true
-  nested_endpoint_name                = "my-nested-endpoint"
-  nested_weight                       = 50
-  nested_target_resource_id           = "resource-id"
-  nested_endpoint_location            = "East US"
-  minimum_child_endpoints             = 2
-  minimum_required_child_endpoints_ipv4 = 2
-  minimum_required_child_endpoints_ipv6 = 1
-  nested_endpoint_enabled             = false
-  nested_geo_mappings                 = ["US", "EU"]
-  nested_priority                     = 1
-  nested_custom_header                = [
-    {
-      name  = "X-Custom-Header"
-      value = "Value"
-    }
-  ]
-  nested_subnet = [
-    {
-      first = "192.168.3.0"
-      last  = "192.168.3.255"
-      scope = "Public"
-    }
-  ]
+module "virtual_machine" {
+  source                          = "tfe.axisb.com/ax-tfe/virtual-machine/azurerm"
+  version                         = "X.X.X"
+  generate_admin_ssh_key          = false
+  rsa_algorithm                   = "RSA"
+  rsa_bits                        = 4096
+  os_flavor                       = "linux"
+  virtual_machine_name            = "my-vm"
+  virtual_machine_size            = "Standard_DS1_v2"
+  admin_username                  = "admin"
+  admin_password                  = "Password123!"
+  disable_password_authentication = false
+  os_disk_storage_account_type    = "Standard_LRS"
+  os_disk_caching                 = "ReadWrite"
+  disk_size_gb                    = 128
+  custom_data                     = "echo 'Hello, World!' > /tmp/hello.txt"
+  availability_set_id             = "availability-set-id"
+  enable_vm_availability_set     = true
+  enable_boot_diagnostics         = true
+  storage_account_name            = "bootdiagnosticsstorage"
+  winrm_protocol                  = "Https"
+  key_vault_certificate_secret_url= "https://mykeyvault.vault.azure.net/secrets/mycertificate"
+  resource_group_name             = "my-resource-group"
+  location                        = "eastus"
+  network_interface_ids           = ["nic-id-1", "nic-id-2"]
 }
