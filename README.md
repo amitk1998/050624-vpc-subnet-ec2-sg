@@ -1,58 +1,40 @@
-AWSTemplateFormatVersion: '2010-09-09'
-Description: Template to create an EC2 instances
+# **Azure Virtual Network Module**
 
-Parameters:
-  InstanceType:
-    Type: String
-    Description: Type of EC2 instance
-    Default: t2.micro
-    AllowedValues:
-      - t2.micro
-      - t2.small
-      - t2.medium
-  KeyName:
-    Type: AWS::EC2::KeyPair::KeyName
-    Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
-    Default: Gravitee # Replace with your actual key pair name
-  VpcId:
-    Type: AWS::EC2::VPC::Id
-    Description: VPC ID where the instance will be launched
-    Default: vpc-02448f48814658f8b # Replace with your actual VPC ID
-  SubnetId:
-    Type: AWS::EC2::Subnet::Id
-    Description: Subnet ID within the selected VPC
-    Default: subnet-0b57dc05d3b2a0f85 # Replace with your actual Subnet ID
-  InstanceSecurityGroup:
-    Type: String
-    Description: Security Group for the instance
-    Default: sg-080309821f1012699 # Replace with your actual Security Group ID
+Terraform module to create Virtual Network on Azure
 
-Resources:
-  MyEC2Instance:
-    Type: AWS::EC2::Instance
-    Properties:
-      InstanceType: !Ref InstanceType
-      KeyName: !Ref KeyName
-      SubnetId: !Ref SubnetId
-      ImageId: ami-0912f71e06545ad88 # Specify the AMI ID for the region
-      SecurityGroupIds:
-        - !Ref InstanceSecurityGroup
-      BlockDeviceMappings:
-        - DeviceName: /dev/xvda
-          Ebs:
-            VolumeSize: 20 # Size of the EBS volume in GB
-            VolumeType: gp2 # General Purpose SSD
-            DeleteOnTermination: true # Deletes the volume when instance is terminated
-      Tags:
-        - Key: Name
-          Value: MyEC2Instance
-        - Key: Environment
-          Value: Production # Environment tag
+# **Description**
+ 
+ This module is basically used to create Virtual Network onAzure.
+ It requires few attributes in order to be created on Azure `Virtual Network`,`address_space`,`location`,`name `,`name ` etc.
 
-Outputs:
-  InstanceId:
-    Description: The Instance ID
-    Value: !Ref MyEC2Instance
-  PublicIP:
-    Description: Public IP address of the EC2 instance
-    Value: !GetAtt MyEC2Instance.PublicIp
+ # **Variable Defination**
+
+| Name | Description | Type | Required | Default | Example |
+|------|-------------|------|----------|---------|:-------:|
+| <a name="input_address_space"></a>[address_space](#input\address_space)| Address space for the virtual network. | `string` | Yes | `N/A` | `N/A` |
+| <a name="input_name"></a>[name](#input\_name)|  Name. | `string` | Yes | `N/A` | `N/A` |
+| <a name="input_resource_group_name"></a>[resource_group_name](#input\_resource_group_name)| resource_group_name. | `string` | Yes | `N/A` | `N/A` |
+| <a name="input_Location"></a>[Location](#input\_Location)| Azure region where the virtual network will be created. | `string` | Yes | `N/A` | `N/A` |
+| <a name="input_bgp_community"></a>[bgp_community](#input\_bgp_community)| bgp_community. | `string` | No | `null` | `null` | 
+| <a name="input_ddos_protection_plan_id "></a>[disable\_ddos_protection_plan_id ](#input\_disable\_ddos_protection_plan_id )| ID of the DDoS protection plan to associate with the virtual network. | `String` | No |  `N/A` |  `N/A` |
+|
+| <a name="input_dns_servers "></a>[dns_servers ](#input\_dns_servers )| dns_servers . | `list(string)` | No | `[ ]` | `[ ]` |
+<a name="input_encryption  "></a>[encryption  ](#input\_encryption  )| Specifies if encrypted vnet allows Vm that does not support encryption . | <pre><code>list(object({<br>  enforcement              = string<br> }))</code></pre> | No | `[{}]` | `[{} ]` |
+<a name="input_tags  "></a>[Tags ](#input\_Tags  )| Tags For Virtual Network. | `map(string)` | No | `{}` | `{Name = "tag-name"}` |
+
+
+
+## **Example Usage**
+
+```hcl
+
+module "vnet" { 
+  source  = "tfe.axisb.com/ax-tfe/vnet/azurerm"
+  version = "X.X.X"
+  name = "vnet_Name"
+  resource_group_name = "resource_group_name"
+  location = "Central India"
+  address_space = ["10.0.32.0/24"]
+}
+
+```
